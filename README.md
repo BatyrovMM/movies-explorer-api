@@ -1,1 +1,2 @@
-# movies-explorer-api
+# Бэкенд дипломной работы
+Альфа версия README
