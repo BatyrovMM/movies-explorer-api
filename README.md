@@ -1,2 +1,3 @@
 # Бэкенд дипломной работы
-Альфа версия README
+Альфа версия README  
+https://batyrov.m.m.students.nomoreparties.space/
