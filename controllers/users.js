@@ -33,7 +33,7 @@ const myUserUpdateInfo = (req, res, next) => {
       if (users) {
         res.send(users);
       } else {
-        throw new NotFound('Пользователя не существует')
+        throw new NotFound('Пользователя не существует');
       }
     })
     .catch((err) => {
@@ -41,7 +41,7 @@ const myUserUpdateInfo = (req, res, next) => {
         next(new BadRequest('Неправильные почта или пароль'));
       }
       next(err);
-    })
+    });
 };
 
 const createUsers = (req, res, next) => {
@@ -66,7 +66,7 @@ const createUsers = (req, res, next) => {
         next(new Conflict('Пользователь уже зарегистрирован'));
       }
       next(err);
-    })
+    });
 };
 
 const login = (req, res, next) => {
