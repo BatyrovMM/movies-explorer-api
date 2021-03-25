@@ -11,10 +11,10 @@ movie.get('/movies', getMovies);
 
 movie.post('/movies', celebrate({
   body: Joi.object().keys({
-    country: Joi.string().min(1).required(true),
-    director: Joi.string().min(1).required(true),
-    duration: Joi.number().min(1).required(true),
-    year: Joi.string().min(2).max(4).required(true),
+    country: Joi.string().required(true),
+    director: Joi.string().required(true),
+    duration: Joi.number().required(true),
+    year: Joi.string().required(true),
     description: Joi.string().min(1).required(true),
     image: Joi.string().required(true).custom((value, helpers) => {
       if (validator.isURL(value)) {

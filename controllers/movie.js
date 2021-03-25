@@ -32,19 +32,20 @@ const createMovie = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Данные невалидны'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
 const deleteMovieById = (req, res, next) => {
   const { movieId } = req.params;
-  Movie.findById(req.params.movieId)
+  Movie.findById(req.params.movieId).select('+owner')
     .orFail(() => {
       throw new NotFound('Фильм не найден');
     })
     .then((movie) => {
-      if (movie.owner.toString() === req.user._id) {
+      if (movie.owner.toString() === req.user._id.toString()) {
         Movie.findByIdAndRemove(movieId)
           .then(() => res.send({ message: 'Удаление прошло успешно!' }));
       } else {

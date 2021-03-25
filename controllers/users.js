@@ -39,8 +39,11 @@ const myUserUpdateInfo = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Неправильные почта или пароль'));
+      } else if (err.code === 11000 || err.name === 'MongoError') {
+        next(new Conflict('Пользователь уже зарегистрирован'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -61,11 +64,11 @@ const createUsers = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Неправильные почта или пароль'));
-      }
-      if (err.code === 11000 || err.name === 'MongoError') {
+      } else if (err.code === 11000 || err.name === 'MongoError') {
         next(new Conflict('Пользователь уже зарегистрирован'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -82,7 +85,7 @@ const login = (req, res, next) => {
           if (isValid) {
             return user;
           }
-          return Promise.reject(new BadRequest('Неправильные почта или пароль'));
+          return Promise.reject(new Unauthorized('Неправильные почта или пароль'));
         });
     })
     .then((user) => {
