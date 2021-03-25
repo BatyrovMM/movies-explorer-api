@@ -5,28 +5,41 @@ const Conflict = require('../errors/Conflict');
 const getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
     .sort({ createdAt: -1 })
-    .then((movie) => res.send(movie))
+    .then((movie) => res.send({
+      country: movie.country,
+      director: movie.director,
+      duration: movie.duration,
+      year: movie.year,
+      description: movie.description,
+      image: movie.image,
+      trailer: movie.trailer,
+      thumbnail: movie.thumbnail,
+      movieId: movie.movieId,
+      nameRU: movie.nameRU,
+      nameEN: movie.nameEN,
+      _id: movie._id,
+    }))
     .catch(next);
 };
 
 const createMovie = (req, res, next) => {
   const ownerId = req.user._id;
-  const { movieId } = req.body;
-  Movie.findOne({ movieId })
-    .orFail(() => {
-      throw new NotFound('Кина не будет! Данные не валидны');
-    })
+    Movie.create({...req.body, owner: ownerId})
     .then((movie) => {
-      if (movie) {
-        throw new Conflict('Фильм уже добавлен');
-      }
-      return Movie.create({
-        ...req.body,
-        owner: ownerId,
+      res.send({
+        country: movie.country,
+        director: movie.director,
+        duration: movie.duration,
+        year: movie.year,
+        description: movie.description,
+        image: movie.image,
+        trailer: movie.trailer,
+        thumbnail: movie.thumbnail,
+        movieId: movie.movieId,
+        nameRU: movie.nameRU,
+        nameEN: movie.nameEN,
+        _id: movie._id,
       });
-    })
-    .then((movie) => {
-      res.send(movie);
     })
     .catch(next);
 };

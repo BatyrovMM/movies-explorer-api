@@ -5,6 +5,7 @@ const NotFound = require('../errors/NotFound');
 
 router.use('/', users);
 router.use('/', movie);
+
 router.use('/*', (req, res, next) => {
   next(new NotFound('Вам тут не фильмы!'));
 });

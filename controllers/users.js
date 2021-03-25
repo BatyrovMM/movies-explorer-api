@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const BadRequest = require('../errors/BadRequest');
 const Conflict = require('../errors/Conflict');
+const NotFound = require('../errors/NotFound');
+const Unauthorized = require('../errors/Unauthorized');
 const User = require('../models/user');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -25,18 +27,21 @@ const myUserUpdateInfo = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-      upsert: false,
     },
   )
     .then((users) => {
-      res.send(users);
-    })
-    .catch(() => {
-      if (BadRequest) {
-        next(new BadRequest('Данные введены неверно!'));
+      if (users) {
+        res.send(users);
+      } else {
+        throw new NotFound('Пользователя не существует')
       }
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Неправильные почта или пароль'));
+      }
+      next(err);
+    })
 };
 
 const createUsers = (req, res, next) => {
@@ -57,11 +62,11 @@ const createUsers = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest('Неправильные почта или пароль'));
       }
-      if (Conflict) {
-        next(new Conflict('Конфликт на ровном месте...'));
+      if (err.code === 11000 || err.name === 'MongoError') {
+        next(new Conflict('Пользователь уже зарегистрирован'));
       }
+      next(err);
     })
-    .catch(next);
 };
 
 const login = (req, res, next) => {
@@ -69,7 +74,7 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new BadRequest('Неправильные почта или пароль'));
+        return Promise.reject(new Unauthorized('Данный пользователь не зарегистрирован'));
       }
 
       return bcrypt.compare(password, user.password)
